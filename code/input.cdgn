@@ -1,0 +1,26 @@
+
+table_name(name, string)
+{
+ { Foo foo },
+ { Bar bar },
+ { Baz Baz },
+ { Bing bing },
+ { Bap bap },
+ { Blam blam },
+}
+
+@generate(table_name)
+"typedef U32 Table_Name;\nenum"
+{
+ @generate_loop {
+  Table_Name_$name,
+ },
+}                
+
+@generate(table_name)
+"global_ char *String_Table = "
+{
+ @generate_loop{
+  "$string_$name_@index",
+ },
+}
