@@ -56,10 +56,10 @@ typedef struct AST_Node_GeneratorLoop
 }AST_Node_GeneratorLoop;
 
 // nates: generators can contain either generator loops or string list nodes
-typedef struct AST_Node_Generator
+typedef struct AST_Node_GenerateBlock
 {
  Token table;
- String8 prelude;
+ Token_Iter prelude_iter;
  
  AST_Node *first;
  AST_Node *last;

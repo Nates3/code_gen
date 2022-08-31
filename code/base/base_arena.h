@@ -36,6 +36,7 @@ func_ void  *ArenaPush(Arena *arena, U64 size);
 func_ void  *ArenaPushZero(Arena *arena, U64 size);
 func_ void   ArenaPop(Arena *arena, U64 size);
 func_ void   ArenaSetPos(Arena *arena, U64 pos);
+func_ U8 *   ArenaPos(Arena *arena);
 func_ void   ArenaClear(Arena *arena);
 func_ void   ArenaRelease(Arena *arena);
 #define PushArray(arena, type, count) (type *)ArenaPush(arena, sizeof(type)*count)

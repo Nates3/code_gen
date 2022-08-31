@@ -28,19 +28,17 @@ global_ U8 char_pred_alpha[32] = {
 };
 #define CharacterPredicate(c, p) ((p[(c / 8)]&(1<<(c%8))) != 0)
 
-#define TOKENIZE_FAILED OS_Abort()
-
 Arena *token_arena = 0;
 
-func_ void
-ExpectToken(Token token, Token_Kind kind)
+func_ B32        
+IsTokenKind(Token token, Token_Kind kind)
 {
- if(token.kind != kind) {
-  fprintf(stderr, "Error: unexpected token %s [%llu:%llu]\n", token_kind_strings[token.kind], token.line, token.col);
-  TOKENIZE_FAILED;
+ B32 result = false;
+ if(token.kind == kind) {
+  result = true;
  }
+ return(result);
 }
-
 
 func_ Token_Iter 
 TokenizeData(String8 data)
@@ -101,7 +99,7 @@ TokenizeData(String8 data)
     }
     if(valid_keyword == false) {
      fprintf(stderr, "Error: invalid keyword [%llu:%llu]\n", node->token.line, node->token.col);
-     TOKENIZE_FAILED;
+     OS_Abort();
     }
    } break;
    
@@ -135,7 +133,7 @@ TokenizeData(String8 data)
     }
     else {
      fprintf(stderr, "Error: table parameter can't start as a numeric [%llu:%llu]\n", line, pos - line_pos);
-     TOKENIZE_FAILED;
+     OS_Abort();
     }
    } break;
    
@@ -181,7 +179,7 @@ TokenizeData(String8 data)
    case'"': { single_kind = Token_Kind_DoubleQuote; } goto Shared_Path;
    case'`': { single_kind = Token_Kind_Tick; } goto Shared_Path;
    case'~': { single_kind = Token_Kind_Tilde; } goto Shared_Path;
-   case 0: { fprintf(stderr, "Error: unexpected eof token parse\n"); TOKENIZE_FAILED;}
+   case 0: { fprintf(stderr, "Error: unexpected eof token parse\n"); OS_Abort();}
    
    {
     Shared_Path:;
@@ -198,13 +196,13 @@ TokenizeData(String8 data)
     }
     else {
      fprintf(stderr, "Error: single_kind character %c failed to set a valid token kind", first);
-     TOKENIZE_FAILED;
+     OS_Abort();
     }
    } break;
    
    default: {
     fprintf(stderr, "Error: unhandled token case\n");
-    TOKENIZE_FAILED;
+    OS_Abort();
    } break;
   }
   iter.token_count++;

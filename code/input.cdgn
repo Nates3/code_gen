@@ -1,26 +1,40 @@
 
-table_name(name, string)
+entity_name_table(name, age)
 {
- { Foo foo },
- { Bar bar },
- { Baz Baz },
- { Bing bing },
- { Bap bap },
- { Blam blam },
+ {Dog 14},
+ {Cat 9},
+ {Rat 3},
+ {Hat 500},
+ {Mat 1050},
+ {Bat 50},
 }
 
-@generate(table_name)
-"typedef U32 Table_Name;\nenum"
+@generate(entity_name_table)
+"typedef U32 Entity_Name;\nenum"
 {
  @generate_loop {
-  Table_Name_$name,
+  Entity_Name_$name,
  },
 }                
 
-@generate(table_name)
-"global_ char *String_Table = "
+@generate(entity_name_table)
+global_ char *String_Table = 
 {
  @generate_loop{
-  "$string_$name_@index",
+  "$name_$age",
  },
+}
+
+@generate(entity_name_table)
+"global_ char *The_Cat_Is_EVIL = "
+{
+ "The $name[1] in the $name[3] hit the $name[2] with a $name[5]",
+}
+
+@generate(entity_name_table)
+"typedef struct $name[1] $name[1];\n struct $name[2]"
+{
+ F32 health;
+ F32 speed;
+ F32 sight;
 }

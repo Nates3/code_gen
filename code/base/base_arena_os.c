@@ -89,6 +89,13 @@ ArenaSetPos(Arena *arena, U64 pos)
  }
 }
 
+func_ U8 *
+ArenaPos(Arena *arena)
+{
+ U8 *pos = (U8 *)arena + arena->pos;
+ return(pos);
+}
+
 func_ void
 ArenaClear(Arena *arena)
 {

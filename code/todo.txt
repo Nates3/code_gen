@@ -6,12 +6,20 @@
 -------------------- Todos -----------------------
 
 
+
+
+[ ] - allow @generate_loop(table) to be possible in global space
+      meaning it's not exclusive to @generate
+[ ] - Maybe make it so if any part of the stage fails, it continues to parse error 
+      messages
+
 [ ] - Specify how the language works in language.h
-[ ] - Make error messages say expected instead of default to unexpected
 [ ] - #.[col][row] syntax
 
-
 ----------------Finished Todos------------------
+[x] - Rework all the error messages to be more helpful
+[x] - be able to specify $table_parmas in the prelude string
+[x] - parse generator elements each by \n instead of comma so you can generate structs
 [x] - Generate some c code
  [x] - Generate enum / string tables using @generate nodes
 [x] - Support new line token

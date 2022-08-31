@@ -5,8 +5,6 @@
 global_ AST_State  ast_state = {false};
 global_ Arena *ast_arena;
 
-#define PARSE_FAILED OS_Abort()
-
 ////////////////////////////////////////
 // nates: Functions
 
@@ -15,22 +13,22 @@ Parse_TableElements(Token_Iter *iter, String8 data, AST_Node_Table *table, B32 b
 {
  for(;;) {
   SkipWhitespaceIter(iter);
-  
+  B32 close_brace_required = false;
   Token element_start = PeekTokenIter(iter);
-  if(element_start.kind == Token_Kind_OpenBrace) {
-   if(brace_required) {
-    ExpectToken(element_start, Token_Kind_OpenBrace);
-   }
-   else
-   {
-    fprintf(stderr, "Error: unexpected open brace [%llu:%llu]\n", element_start.line, element_start.col);
-    PARSE_FAILED;
-   }
-   
-   OmitTokenIter(iter);
-  }
-  else if(element_start.kind == Token_Kind_CloseBrace) {
+  if(IsTokenKind(element_start, Token_Kind_CloseBrace)) {
    break;
+  }
+  
+  if(brace_required) {
+   if(!IsTokenKind(element_start, Token_Kind_OpenBrace)) {
+    fprintf(stderr, "Error: expected compound table element starting with \'{\' [%llu:%llu]\n", element_start.line, element_start.col);
+    OS_Abort();
+   }
+  }
+  
+  if(element_start.kind == Token_Kind_OpenBrace) {
+   close_brace_required = true;
+   OmitTokenIter(iter);
   }
   
   Table_Element *table_element = PushArray(ast_arena, Table_Element, 1);
@@ -47,23 +45,35 @@ Parse_TableElements(Token_Iter *iter, String8 data, AST_Node_Table *table, B32 b
     PushStr8List(ast_arena, &table_element->list, element_string);
    }
    else if(token.kind == Token_Kind_CloseBrace) {
+    if(close_brace_required == false) {
+     fprintf(stderr, "Error: unnecessary close brace before comma [%llu:%llu]\n", token.line, token.col);
+     OS_Abort();
+    }
+    
     Token comma = GrabTokenIter(iter);
-    ExpectToken(comma, Token_Kind_Comma);
+    if(!IsTokenKind(comma, Token_Kind_Comma)) {
+     fprintf(stderr, "Error: compound elements must be separated by a comma [%llu:%llu]\n", comma.line, comma.col);
+     OS_Abort();
+    }
     break;
    }
    else if(token.kind == Token_Kind_Comma) {
+    if(close_brace_required) {
+     fprintf(stderr, "Error: compound element must end with \'}\' before comma [%llu:%llu]\n", token.line, token.col);
+     OS_Abort();
+    }
     break;
    }
    else {
     fprintf(stderr, "Error: expected identifier or str/num literal [%llu:%llu]\n", token.line, token.col);
-    PARSE_FAILED;
+    OS_Abort();
    }
    
   }
   if(table_element->list.count != table->parameters.count) {
    fprintf(stderr, "Error: table element count(%llu) dosen't match table parameter count(%llu) [%llu:%llu]\n", 
            table_element->list.count, table->parameters.count, element_start.line, element_start.col);
-   PARSE_FAILED;
+   OS_Abort();
   }
   
  }
@@ -83,7 +93,10 @@ Parse_Table(AST *ast, Token_Iter *iter, String8 data)
  // nates: grab the first token; assert; store into hash
  {
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_Identifier);
+  if(!IsTokenKind(token, Token_Kind_Identifier)) {
+   fprintf(stderr, "Error: fatal error, parser expected a table identifier token [%llu:%llu]\n", token.line, token.col);
+   OS_Abort();
+  }
   
   String8 table_name = SubstrSizeStr8(data, token.pos, token.size);
   
@@ -102,7 +115,10 @@ Parse_Table(AST *ast, Token_Iter *iter, String8 data)
  {
   SkipWhitespaceIter(iter);
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_OpenParen);
+  if(!IsTokenKind(token, Token_Kind_OpenParen)) {
+   fprintf(stderr, "Error: token wasn't open parenthesis after table identifier [%llu:%llu]\n", token.line, token.col);
+   OS_Abort();
+  }
  }
  
  // nates: parse parameters into *table
@@ -111,7 +127,10 @@ Parse_Table(AST *ast, Token_Iter *iter, String8 data)
   // nates: parameter loop
   for(;;) {
    Token token = GrabTokenIter(iter);
-   ExpectToken(token, Token_Kind_Identifier);
+   if(!IsTokenKind(token, Token_Kind_Identifier)) {
+    fprintf(stderr, "Error: expected a table parameter identifier token [%llu:%llu]\n", token.line, token.col);
+    OS_Abort();
+   }
    
    // nates: push parameter onto table
    String8 param_string = SubstrSizeStr8(data, token.pos, token.size);
@@ -126,8 +145,8 @@ Parse_Table(AST *ast, Token_Iter *iter, String8 data)
     break;
    }
    else {
-    fprintf(stderr, "Error: expected comma / closing parenthesis [%llu:%llu]\n", next_token.line, next_token.col);
-    PARSE_FAILED;
+    fprintf(stderr, "Error: expected comma / closing parenthesis after table parameter [%llu:%llu]\n", next_token.line, next_token.col);
+    OS_Abort();
    }
    
    SkipWhitespaceIter(iter);
@@ -138,7 +157,10 @@ Parse_Table(AST *ast, Token_Iter *iter, String8 data)
  {
   SkipWhitespaceIter(iter);
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_OpenBrace);
+  if(!IsTokenKind(token, Token_Kind_OpenBrace)) {
+   fprintf(stderr, "Error: an open brace \'{\' must come after table parameter closing parenthesis\n", token.line, token.col);
+   OS_Abort();
+  }
  }
  
  // nates: parse multi/single string elements into the table
@@ -156,7 +178,10 @@ Parse_Table(AST *ast, Token_Iter *iter, String8 data)
  {
   SkipWhitespaceIter(iter);
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_CloseBrace);
+  if(!IsTokenKind(token, Token_Kind_CloseBrace)) { 
+   fprintf(stderr, "Error: expected closing brace \'}\' at the end of parsing a table\n", token.line, token.col);
+   OS_Abort();
+  }
  }
 }
 
@@ -169,7 +194,7 @@ Parse_GeneratorElement(AST_Node *node, Token_Iter *iter, String8 data)
  token_iter->iter = *iter;
  for(;;) {
   Token token = GrabTokenIter(iter);
-  if(token.kind == Token_Kind_Comma) {
+  if(token.kind == Token_Kind_NewLine) {
    break;
   }
  }
@@ -187,14 +212,20 @@ Parse_GeneratorLoop(AST_Node *node, Token_Iter *iter, String8 data)
  // nates: consume keyword
  {
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_Keyword);
+  if(!IsTokenKind(token, Token_Kind_Keyword)) {
+   fprintf(stderr, "Fatal Error: loop parser didn't have a @keyword token as it's first token\n", token.line, token.col);
+   OS_Abort();
+  }
  }
  
  // nates: consume open brace
  {
   SkipWhitespaceIter(iter);
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_OpenBrace);
+  if(!IsTokenKind(token, Token_Kind_OpenBrace)) {
+   fprintf(stderr, "Error: expected an open brace at the beginning of a @generate_loop [%llu:%llu]\n", token.line, token.col);
+   OS_Abort();
+  }
  }
  
  // nates: parse elements / loops
@@ -217,7 +248,10 @@ Parse_GeneratorLoop(AST_Node *node, Token_Iter *iter, String8 data)
   else if(token.kind == Token_Kind_CloseBrace) {
    OmitTokenIter(iter);
    Token comma = GrabTokenIter(iter);
-   ExpectToken(comma, Token_Kind_Comma);
+   if(!IsTokenKind(comma, Token_Kind_Comma)) {
+    fprintf(stderr, "Error: expected a comma after @generate_loop closing brace [%llu:%llu]\n", comma.line, comma.col);
+    OS_Abort();
+   }
    break;
   }
   else {
@@ -239,7 +273,7 @@ Parse_GeneratorLoop(AST_Node *node, Token_Iter *iter, String8 data)
   }
   else {
    fprintf(stderr, "Error: unable to parse generator element [%llu:%llu]\n", token.line, token.col);
-   PARSE_FAILED;
+   OS_Abort();
   }
  }
 }
@@ -258,22 +292,30 @@ Parse_Generator(AST *ast, Token_Iter *iter, String8 data)
  // nates: parse the keyword
  {
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_Keyword); 
+  if(!IsTokenKind(token, Token_Kind_Keyword)) {
+   fprintf(stderr, "Fatal Error: generator parser failed to recieve a keyword token [%llu:%llu]\n", token.line, token.col);
+   OS_Abort();
+  }
  }
  
  // nates: parse open parenthesis
  {
   SkipWhitespaceIter(iter);
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_OpenParen);
+  if(!IsTokenKind(token, Token_Kind_OpenParen)) {
+   fprintf(stderr, "Error: open parentheses should follow @generate [%llu:%llu]\n", token.line, token.col);
+   OS_Abort();
+  }
  }
  
  // nates: get the input table information
  {
   SkipWhitespaceIter(iter);
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_Identifier);
-  
+  if(!IsTokenKind(token, Token_Kind_Identifier)) {
+   fprintf(stderr, "Error: a table identifier should follow open parethesis of @generate [%llu:%llu]\n", token.line, token.col);
+   OS_Abort();
+  }
   gen->table = token;
  }
  
@@ -281,38 +323,10 @@ Parse_Generator(AST *ast, Token_Iter *iter, String8 data)
  {
   SkipWhitespaceIter(iter);
   Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_CloseParen);
- }
- 
- // nates: parse generator prelude string literal
- {
-  ArenaTemp scratch = GetScratch(0, 0);
-  SkipWhitespaceIter(iter);
-  Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_DoubleQuote);
-  
-  String8List prelude_list = {0};
-  for(;;) {
-   Token next = GrabTokenIter(iter);
-   if(next.kind == Token_Kind_DoubleQuote) {
-    break;
-   }
-   else {
-    String8 sub_str = SubstrSizeStr8(data, next.pos, next.size);
-    PushStr8List(scratch.arena, &prelude_list, sub_str);
-   }
+  if(!IsTokenKind(token, Token_Kind_CloseParen)) {
+   fprintf(stderr, "Error: closing parenthesis of @generate is missing [%llu:%llu]\n", token.line, token.col);
+   OS_Abort();
   }
-  
-  String8 prelude = JoinStr8List(ast_arena, &prelude_list, 0);
-  gen->prelude = prelude;
-  ReleaseScratch(scratch);
- }
- 
- // nates: parse open brace
- {
-  SkipWhitespaceIter(iter);
-  Token token = GrabTokenIter(iter);
-  ExpectToken(token, Token_Kind_OpenBrace);
  }
  
  // nates: parse generator elements / loops
@@ -353,7 +367,7 @@ Parse_Generator(AST *ast, Token_Iter *iter, String8 data)
    }
    else {
     fprintf(stderr, "Error: unable to parse generator element [%llu:%llu]\n", token.line, token.col);
-    PARSE_FAILED;
+    OS_Abort();
    }
   }
  }
@@ -378,7 +392,7 @@ Parse_Tokens(Token_Iter *iter, String8 data)
    }
    else {
     fprintf(stderr, "Error: invalid @keyword [%llu:%llu]\n", token.line, token.col);
-    PARSE_FAILED;
+    OS_Abort();
    }
   }
   else if(token.kind == Token_Kind_EOF) {
@@ -386,7 +400,7 @@ Parse_Tokens(Token_Iter *iter, String8 data)
   }
   else {
    fprintf(stderr, "Error: expected identifier or keyword [%llu:%llu]\n", token.line, token.col);
-   PARSE_FAILED;
+   OS_Abort();
   }
  }
  
