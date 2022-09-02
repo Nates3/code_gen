@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "codegen spec.md",
+            "file": "todos.md",
             "mode": "source",
             "source": true
           }
@@ -41,7 +41,7 @@
               "type": "search",
               "state": {
                 "query": "tag:#change",
-                "matchingCase": false,
+                "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": false,
                 "extraContext": false,
@@ -57,8 +57,7 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -104,7 +103,9 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {}
+              "state": {
+                "file": "todos.md"
+              }
             }
           },
           {
@@ -113,6 +114,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "todos.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -124,6 +126,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "todos.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -140,7 +143,7 @@
     "direction": "horizontal",
     "width": 301.5
   },
-  "active": "948402369ea1bf7e",
+  "active": "ce23178acb7b6f76",
   "lastOpenFiles": [
     "codegen spec.md",
     "todos.md",

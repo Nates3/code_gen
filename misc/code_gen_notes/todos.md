@@ -1,9 +1,7 @@
 
 # -------------------- Todos -----------------------
 
-- [ ] change @generate_block syntax to @generate_block_start() @generate_block_end
 - [ ] Maybe make it so if any part of the stage fails, it continues to parse error messages
-
 - [ ] - Specify how the language works in language.h
 - [ ] - #.[col][row] syntax
 
