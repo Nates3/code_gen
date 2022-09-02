@@ -1,0 +1,151 @@
+{
+  "main": {
+    "id": "21bbfec4c79af67c",
+    "type": "split",
+    "children": [
+      {
+        "id": "ce23178acb7b6f76",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "codegen spec.md",
+            "mode": "source",
+            "source": true
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "423162c085cce87d",
+    "type": "split",
+    "children": [
+      {
+        "id": "d6b66dcd208a4f7d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bb9175497f9b8395",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "04ef3dd518ea8cc8",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "tag:#change",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "083d4303e22078b1",
+            "type": "leaf",
+            "state": {
+              "type": "starred",
+              "state": {}
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "horizontal",
+    "width": 173.5
+  },
+  "right": {
+    "id": "403e008021df2379",
+    "type": "split",
+    "children": [
+      {
+        "id": "25d7d4aa451564b1",
+        "type": "tabs",
+        "dimension": 50.050658561296856,
+        "children": [
+          {
+            "id": "948402369ea1bf7e",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {}
+            }
+          }
+        ]
+      },
+      {
+        "id": "88230d0d9c675e5a",
+        "type": "tabs",
+        "dimension": 49.949341438703144,
+        "children": [
+          {
+            "id": "b419e03ab3f293b7",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "852a379dce37e9fc",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {}
+            }
+          },
+          {
+            "id": "612aea19c5a0c0a1",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "5d1acca6be921878",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": true,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 301.5
+  },
+  "active": "948402369ea1bf7e",
+  "lastOpenFiles": [
+    "codegen spec.md",
+    "todos.md",
+    "mylink.md",
+    "How markdown works.md",
+    "how to get fast at typing.md"
+  ]
+}

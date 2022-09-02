@@ -72,7 +72,7 @@ CStrStr8(Arena *arena, String8 string)
 }
 
 func_ String8
-PushCopyStr8(Arena *arena, String8 string)
+CopyStr8(Arena *arena, String8 string)
 {
  U8 *memory = PushArray(arena, U8, string.size + 1);
  MemoryCopy(memory, string.str, string.size);
@@ -155,7 +155,7 @@ SubstrStr8(String8 str, U64 first, U64 opl)
 }
 
 func_ String8
-SubstrSizeStr8(String8 str, U64 first, U64 size)
+SubSizeStr8(String8 str, U64 first, U64 size)
 {
  String8 result = SubstrStr8(str, first, first + size);
  return(result);
@@ -294,8 +294,8 @@ Str8FromU64(Arena *arena, U64 num)
   num /= 10;
   String8Node *node = PushArray(scratch.arena, String8Node, 1);
   node->string.str = PushArray(scratch.arena, U8, 1);
-  node->string.size = 1;
   node->string.str[0] = bottom_digit + 0x30;
+  node->string.size = 1;
   QueuePushFront(digits.first, digits.last, node);
   digits.count += 1;
   digits.total_size += node->string.size;
@@ -305,6 +305,48 @@ Str8FromU64(Arena *arena, U64 num)
  result = JoinStr8List(arena, &digits, 0);
  return(result);
 }
+
+func_ String8
+Str8FromS64(Arena *arena, S64 num)
+{
+ ArenaTemp scratch = GetScratch(arena, 0);
+ String8 result = {0};
+ String8List digits = {0};
+ B32 push_hyphen = false;
+ if(num < 0) {
+  push_hyphen = true;
+  num *= -1;
+ }
+ 
+ for(;;) {
+  U64 bottom_digit = num % 10;
+  num /= 10;
+  String8Node *node = PushArray(scratch.arena, String8Node, 1);
+  QueuePushFront(digits.first, digits.last, node);
+  node->string.str = PushArray(scratch.arena, U8, 1);
+  node->string.str[0] = bottom_digit + 0x30;
+  node->string.size = 1;
+  digits.count += 1;
+  digits.total_size += node->string.size;
+  if(num == 0) { break; }
+ }
+ 
+ // nates: push a negative to the front of a list
+ if(push_hyphen)
+ {
+  String8Node *node = PushArray(scratch.arena, String8Node, 1);
+  QueuePushFront(digits.first, digits.last, node);
+  node->string.str = PushArray(scratch.arena, U8, 1);
+  node->string.str[0] = '-';
+  node->string.size = 1;
+  digits.count += 1;
+  digits.total_size += node->string.size;
+ }
+ 
+ result = JoinStr8List(arena, &digits, 0);
+ return(result);
+}
+
 
 func_ B32 
 Str8Match(String8 a, String8 b, StringMatchFlags flags)

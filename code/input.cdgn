@@ -1,38 +1,48 @@
 
-entity_name_table(name, age)
+entity_name_table(name, age, status)
 {
- {Dog 14},
- {Cat 9},
- {Rat 3},
- {Hat 500},
- {Mat 1050},
- {Bat 50},
+ {Dog 1 happy},
+ {Cat 2 chill},
+ {Rat 3 fast},
+ {Hat 4 static},
+ {Mat 5 static2},
+ {Bat 6 chill_but_upsidedown},
 }
 
-@generate(entity_name_table)
-"typedef U32 Entity_Name;\nenum"
+table2(name, age)
 {
- @generate_loop {
-  Entity_Name_$name,
+ {sus_man 42},
+ {bap 49643},
+}
+
+@generate_block(entity_name_table)
+typedef U32 Entity_Name;
+enum
+{
+ @generate_loop { 
+  Entity_$name_$age = (1 << @index),
  },
 }                
 
-@generate(entity_name_table)
-global_ char *String_Table = 
+@generate_block(entity_name_table)
+
+global_ char *String_Table_$name[0] = 
 {
+ @index; @inc
  @generate_loop{
-  "$name_$age",
+   "$name_$age_$status_@index", 
  },
 }
 
-@generate(entity_name_table)
-"global_ char *The_Cat_Is_EVIL = "
+@generate_block(entity_name_table)
+global_ char *The_Cat_Is_EVIL = 
 {
  "The $name[1] in the $name[3] hit the $name[2] with a $name[5]",
 }
 
-@generate(entity_name_table)
-"typedef struct $name[1] $name[1];\n struct $name[2]"
+@generate_block(entity_name_table)
+typedef struct $name[1] $name[1];
+struct $name[2]
 {
  F32 health;
  F32 speed;

@@ -18,53 +18,6 @@
 #include "codegen_generate.c"
 
 
-func_ void 
-PrintASTNodes(AST_Node *node, U32 level)
-{
-#define RESET_LIST ReleaseScratch(scratch); str_list = (String8List){0}
- ArenaTemp scratch = GetScratch(0, 0);
- 
- String8List str_list = {0};
- for(;node != 0; node = node->next) {
-  for(U32 i = 0; i < level; ++i) {
-   PushStr8List(scratch.arena, &str_list, Str8Lit("- "));
-  }
-  switch(node->kind) {
-   case AST_Node_Kind_Table: {
-    fprintf(stdout, "Node: Table\n");
-   }break;
-   case AST_Node_Kind_Generator: {
-    AST_Node_Generator *gen = (AST_Node_Generator *)node->data;
-    PushStr8List(scratch.arena, &str_list, Str8Lit("Node: Generator\n"));
-    String8 joined = JoinStr8List(scratch.arena, &str_list, 0);
-    fprintf(stdout, joined.str);
-    RESET_LIST;
-    PrintASTNodes(gen->first, level + 1);
-   } break;;
-   case AST_Node_Kind_GeneratorLoop: {
-    AST_Node_GeneratorLoop *loop = (AST_Node_GeneratorLoop *)node->data;
-    PushStr8List(scratch.arena, &str_list, Str8Lit("Node: GeneratorLoop\n"));
-    String8 joined = JoinStr8List(scratch.arena, &str_list, 0);
-    fprintf(stdout, joined.str);
-    RESET_LIST;
-    PrintASTNodes(loop->first, level + 1);
-   } break;
-   case AST_Node_Kind_TokenIter: {
-    PushStr8List(scratch.arena, &str_list, Str8Lit("Node: TokenIter\n"));
-    String8 joined = JoinStr8List(scratch.arena, &str_list, 0);
-    fprintf(stdout, joined.str);
-    RESET_LIST;
-   } break;
-   
-   case AST_Node_Null: {
-    InvalidPath;
-   } break;
-  }
- }
- 
- ReleaseScratch(scratch);
-}
-
 int main(int program_argc, char **program_args)
 {
  OS_ThreadContext tctx = {0};

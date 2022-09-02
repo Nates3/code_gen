@@ -13,9 +13,7 @@ enum
 {
  AST_Node_Null,
  AST_Node_Kind_Table,
- AST_Node_Kind_Generator,
- AST_Node_Kind_GeneratorLoop,
- AST_Node_Kind_TokenIter,
+ AST_Node_Kind_GenerateBlock,
 };
 
 typedef struct Table_Element Table_Element;
@@ -31,39 +29,21 @@ typedef struct AST_Node_Table
  
  String8List parameters;
  
+ // nates: these are row elements
  U32 element_count;
  Table_Element *first;
  Table_Element *last;
 }AST_Node_Table;
 
-typedef struct TokenNode TokenNode;
-struct TokenNode
-{
- TokenNode *next;
- Token token;
-};
-
-typedef struct AST_Node_TokenIter
-{
- Token_Iter iter;
-}AST_Node_TokenIter;
-
-// nates: generator loops contain generator loops or string lists
-typedef struct AST_Node_GeneratorLoop
-{
- AST_Node *first;
- AST_Node *last;
-}AST_Node_GeneratorLoop;
-
-// nates: generators can contain either generator loops or string list nodes
+// nates: generators just contain tokens and it's up to the generator to generate
+// just these tokens by themselves or generate different output based on keywords
 typedef struct AST_Node_GenerateBlock
 {
- Token table;
- Token_Iter prelude_iter;
- 
- AST_Node *first;
- AST_Node *last;
-}AST_Node_Generator;
+ Token table_name;
+ // nates: token iterator that points at the very first token to start
+ // generating from
+ Token_Iter start;
+}AST_Node_GenerateBlock;
 
 struct AST_Node
 {
@@ -96,21 +76,12 @@ struct AST_State
  AST_TableHashNode *free_nodes;
 };
 
-typedef enum Parse_Kind
-{
- Parse_Kind_Null,
- Parse_Kind_Elements,
- Parse_Kind_Loop,
-} Parse_Kind;
-
 ////////////////////////////////
 // nates: Functions
 
 func_ void      Parse_TableElements(Token_Iter *iter, String8 data, AST_Node_Table *table, B32 brace_required);
 func_ void      Parse_Table(AST *ast, Token_Iter *iter, String8 data);
-func_ void      Parse_GeneratorElement(AST_Node *node, Token_Iter *iter, String8 data);
-func_ void      Parse_GeneratorLoop(AST_Node *node, Token_Iter *iter, String8 data);
-func_ void      Parse_Generator(AST *ast, Token_Iter *iter, String8 data);
+func_ void      Parse_GenerateBlock(AST *ast, Token_Iter *iter, String8 data);
 func_ AST       Parse_Tokens(Token_Iter *iter, String8 data);
 
 #endif //CODEGEN_PARSER_H

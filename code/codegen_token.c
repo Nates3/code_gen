@@ -30,27 +30,17 @@ global_ U8 char_pred_alpha[32] = {
 
 Arena *token_arena = 0;
 
-func_ B32        
-IsTokenKind(Token token, Token_Kind kind)
-{
- B32 result = false;
- if(token.kind == kind) {
-  result = true;
- }
- return(result);
-}
-
 func_ Token_Iter 
-TokenizeData(String8 data)
+TokenizeData(String8 input)
 {
  Token_Iter iter = {0};
  
  S64 pos = 0;
  S64 line = 1;
  S64 line_pos = -1;
- for(; pos < data.size;
+ for(; pos < input.size;
      ) {
-  U8 first = data.str[pos];
+  U8 first = input.str[pos];
   switch(first)
   {
    case'\n': {
@@ -74,7 +64,7 @@ TokenizeData(String8 data)
     node->token.pos = pos;
     node->token.line = line;
     node->token.col = pos - line_pos;
-    for(;CharacterPredicate(data.str[pos], char_pred_whitespace) && pos < data.size; ++pos);
+    for(;CharacterPredicate(input.str[pos], char_pred_whitespace) && pos < input.size; ++pos);
     node->token.size = pos - node->token.pos;
    } break;
    
@@ -86,11 +76,11 @@ TokenizeData(String8 data)
     node->token.line = line;
     node->token.col = pos - line_pos;
     pos++;
-    for(;CharacterPredicate(data.str[pos], char_pred_alpha_numeric_underscore) && pos < data.size; ++pos);
+    for(;CharacterPredicate(input.str[pos], char_pred_alpha_numeric_underscore) && pos < input.size; ++pos);
     node->token.size = pos - node->token.pos;
     
     B32 valid_keyword = false;
-    String8 keyword = SubstrSizeStr8(data, node->token.pos, node->token.size);
+    String8 keyword = SubSizeStr8(input, node->token.pos, node->token.size);
     for(U32 index = 0; index < ArrayCount(language_keywords); ++index) {
      String8 language_keyword = Str8CStr((U8 *)language_keywords[index]);
      if(Str8Match(language_keyword, keyword, 0)) {
@@ -98,7 +88,13 @@ TokenizeData(String8 data)
      }
     }
     if(valid_keyword == false) {
-     fprintf(stderr, "Error: invalid keyword [%llu:%llu]\n", node->token.line, node->token.col);
+     ArenaTemp scratch = GetScratch(0, 0);
+     String8 keyword_string = SubSizeStr8(input, node->token.pos, node->token.size);
+     String8 keyword_cstr = CopyStr8(scratch.arena, keyword_string);
+     fprintf(stderr, "Error: invalid keyword(%s) [%llu:%llu]\n", 
+             keyword_cstr.str,
+             node->token.line, node->token.col);
+     ReleaseScratch(scratch);
      OS_Abort();
     }
    } break;
@@ -115,7 +111,7 @@ TokenizeData(String8 data)
     node->token.pos = pos;
     node->token.line = line;
     node->token.col = pos - line_pos;
-    for(;CharacterPredicate(data.str[pos], char_pred_alpha_numeric_underscore) && pos < data.size; ++pos);
+    for(;CharacterPredicate(input.str[pos], char_pred_alpha_numeric_underscore) && pos < input.size; ++pos);
     node->token.size = pos - node->token.pos;
    } break;
    
@@ -127,8 +123,8 @@ TokenizeData(String8 data)
     node->token.line = line;
     node->token.col = pos - line_pos;
     pos++;
-    if(!CharacterPredicate(data.str[pos], char_pred_number)) {
-     for(;CharacterPredicate(data.str[pos], char_pred_alpha_numeric_underscore) && pos < data.size; ++pos);
+    if(!CharacterPredicate(input.str[pos], char_pred_number)) {
+     for(;CharacterPredicate(input.str[pos], char_pred_alpha_numeric_underscore) && pos < input.size; ++pos);
      node->token.size = pos - node->token.pos;
     }
     else {
@@ -144,7 +140,7 @@ TokenizeData(String8 data)
     node->token.pos = pos;
     node->token.line = line;
     node->token.col = pos - line_pos;
-    for(;CharacterPredicate(data.str[pos], char_pred_number) && pos < data.size; ++pos);
+    for(;CharacterPredicate(input.str[pos], char_pred_number) && pos < input.size; ++pos);
     node->token.size = pos - node->token.pos;
    } break;
    

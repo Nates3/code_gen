@@ -74,7 +74,7 @@ func_ String8 Str8(U8 *str, U64 size);
 func_ String8 Str8Rng(U8 *first, U8 *opl);
 func_ String8 Str8CStr(U8 *cstr);
 func_ char   *CStrStr8(Arena *arena, String8 string);
-func_ String8 PushCopyStr8(Arena *arena, String8 string);
+func_ String8 CopyStr8(Arena *arena, String8 string);
 
 ///////////////////////////////////////////////
 //~ NOTE(nates): Immutable string16 helper functions
@@ -92,7 +92,7 @@ func_ String8 ChopStr8(String8 str, U64 amount);
 func_ String8 PosfixStr8(String8 str, U64 size);
 func_ String8 SkipStr8(String8 str, U64 amount);
 func_ String8 SubstrStr8(String8 str, U64 first, U64 opl);
-func_ String8 SubstrSizeStr8(String8 str, U64 first, U64 size);
+func_ String8 SubSizeStr8(String8 str, U64 first, U64 size);
 
 #define Str8Expand(s) (int)((s).size), ((s).str)
 
@@ -104,6 +104,7 @@ func_ U32 U32FromStr8(String8 str);
 func_ U64 U64FromStr8(String8 str);
 
 func_ String8 Str8FromU64(Arena *arena, U64 num);
+func_ String8 Str8FromS64(Arena *arena, S64 num);
 
 /////////////////////////////////////////////////
 //~ NOTE(nates): String helper functions

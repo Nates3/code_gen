@@ -105,7 +105,7 @@ OS_Main_Init(OS_ThreadContext *tctx_memory, int argc, char **args)
  char **opl = args + argc;
  for(char **arg = args; arg < opl; arg += 1) {
   String8 str = Str8CStr(*arg);
-  String8 copy = PushCopyStr8(win32_perm_arena, str);
+  String8 copy = CopyStr8(win32_perm_arena, str);
   PushStr8List(win32_perm_arena, &win32_cmd_args, copy);
  }
 }

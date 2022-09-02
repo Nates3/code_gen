@@ -1,0 +1,11 @@
+{
+  "lineWrap": false,
+  "autoPairBrackets": false,
+  "autoPairMarkdown": false,
+  "defaultViewMode": "source",
+  "livePreview": false,
+  "promptDelete": false,
+  "vimMode": false,
+  "alwaysUpdateLinks": true,
+  "smartIndentList": false
+}

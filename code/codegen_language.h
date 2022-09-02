@@ -3,11 +3,11 @@
 #define CODEGEN_LANGUAGE_H
 
 global_ char *language_keywords[] = {
- "@generate",
+ "@generate_block",
  "@generate_loop",
  "@index",
- "@inc", // nates: incriments the implicit index
- "@dec", // nates: decrements the implicit index
+ "@inc", // nates: incriments the generation index
+ "@dec", // nates: decrements the generation indexs
 };
 
 #endif //CODEGEN_LANGUAGE_H

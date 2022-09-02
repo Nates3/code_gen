@@ -133,7 +133,6 @@ typedef struct Token_Iter
 //////////////////////////
 //~ NOTE(nates): Functions
 
-func_ B32        IsTokenKind(Token token, Token_Kind kind);
 func_ Token_Iter TokenizeData(String8 data);
 func_ Token GrabTokenIter(Token_Iter *iter);
 func_ Token PeekTokenIter(Token_Iter *iter);
